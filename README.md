@@ -5,6 +5,7 @@ Plant one X post. Seed grows it into a cited knowledge base, flags hype, and spr
 ## Workflow
 | Stage | Skill | MCP tools |
 |---|---|---|
+| HUNT (one call): expand, search, rank, add, distill, cited summary | any | `seed_hunt` |
 | GROW: follow quotes, reply parents and linked articles 2 hops, then host X/web search | `skills/seed-grow` | `seed_expand`, `seed_add` |
 | DISTILL: cluster, dedupe, cite, flag hype | `skills/seed-distill` | `seed_distill`, `seed_note` |
 | SPROUT: blueprint plus multiple-choice pre-build questions | `skills/seed-sprout` | `seed_blueprint` |
@@ -17,6 +18,18 @@ Plant one X post. Seed grows it into a cited knowledge base, flags hype, and spr
 - Broad X search is **not** done by the server. The skills tell the host agent to use its own X access (Grok Bot's built-in public X reads, or the X plugin). With the X plugin, those calls may spend the user's X API credits, and the skills say to estimate the cost first.
 - fxtwitter is a third-party service with no guaranteed uptime. Override it with `SEED_FX_BASE` if needed.
 - Storage: JSON per topic in `SEED_HOME` (default `~/.seed`).
+
+## seed_hunt sources (checked 2026-10-15 from a cloud box)
+| Source | Key? | Status |
+|---|---|---|
+| fxtwitter (post text, quotes, reply parents) | none | works |
+| Bing RSS (`format=rss`) web search, also surfaces x.com posts | none | works |
+| Hacker News (Algolia API) | none | works (results can be generic; stricter relevance cutoff) |
+| DuckDuckGo HTML | none | works at first, then shows a bot challenge. Seed detects it and skips |
+| Reddit JSON | none | 403 from cloud IPs. Skipped gracefully; may work from home IPs |
+| X recent search | `SEED_X_BEARER` (X API bearer, paid/credit-based) | optional, off by default |
+
+`budget` caps total outbound requests (default 30). `SEED_MIN_INTERVAL` (default 1s) is the minimum gap between requests to one host.
 
 ## Layout
 ```

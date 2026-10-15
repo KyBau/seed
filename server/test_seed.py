@@ -1,5 +1,5 @@
 import json, os, subprocess, sys, tempfile, unittest
-os.environ["SEED_HOME"] = tempfile.mkdtemp()
+os.environ["SEED_HOME"] = tempfile.mkdtemp(); os.environ["SEED_MIN_INTERVAL"] = "0"
 sys.path.insert(0, os.path.dirname(__file__)); import seed_server as S
 LIVE = os.environ.get("SEED_LIVE", "0") == "1"
 def call(n, a): return S.handle({"jsonrpc": "2.0", "id": 1, "method": "tools/call", "params": {"name": n, "arguments": a}})["result"]
@@ -56,9 +56,37 @@ class Regression(unittest.TestCase):
         self.assertNotIn("min_faves", j); self.assertNotIn("them", j.split())
         self.assertTrue(any("copyfomo" in x and "grok" in x for x in q), q); self.assertIn("from:0xNevsky copyfomo", q); self.assertIn("from:A_Pirate_I copyfomo", q)
         for w in S.keywords([PIRATE, NEVSKY], 8): self.assertNotIn(w, S.STOP)
+class Hunt(unittest.TestCase):
+    def fake(self, calls):
+        def ddg(q): calls.append(q); return [{"url": "https://x.com/c/status/3", "text": "copy trading wallets result", "source": "duckduckgo"},
+                                            {"url": "https://blog.example/copytrade", "text": "Copy trading wallets guide: $100 into $5,000", "source": "duckduckgo"},
+                                            {"url": "https://other.example/cats", "text": "cute cats", "source": "duckduckgo"}]
+        def bad(q): raise PermissionError("SEED_X_BEARER not set")
+        return {"x": bad, "duckduckgo": ddg}
+    def test_hunt_post(self):
+        calls = []; r = S.hunt("https://x.com/a/status/1", "hunt1", 1, 30, 10, searchers=self.fake(calls), fetch=lambda i: dict(FAKE[i]), art=lambda u: (u, "Guide", "score"))
+        self.assertIn("duckduckgo", r["sources_ok"]); self.assertIn("x", r["sources_failed"])
+        urls = [a["url"] for a in r["added"]]; self.assertIn("https://blog.example/copytrade", urls); self.assertNotIn("https://other.example/cats", urls)
+        self.assertLessEqual(r["requests_used"], 30); self.assertTrue(r["summary"]); self.assertTrue(any("BIG RETURN" in f for f in r["flags"]))
+    def test_budget(self):
+        calls = []; r = S.hunt("copy trading wallets bot", "hunt2", 1, 5, 10, searchers=self.fake(calls))
+        self.assertLessEqual(r["requests_used"], 5); self.assertEqual(r["topic"], "hunt2")
+    def test_freetext_tool(self):
+        S.SEARCHERS_BAK = S.SEARCHERS; S.SEARCHERS = self.fake([])
+        try: self.assertFalse(call("seed_hunt", {"seed": "copy trading wallets", "topic": "hunt3", "budget": 10})["isError"])
+        finally: S.SEARCHERS = S.SEARCHERS_BAK
+    def test_ddg_parse(self):
+        page = '<a rel="nofollow" class="result__a" href="//duckduckgo.com/l/?uddg=https%3A%2F%2Fx.com%2Fg%2Fstatus%2F5&amp;rut=1">T <b>x</b></a><a class="result__snippet" href="#">snip</a>'
+        orig = S._getj; S._getj = lambda u, h=None: page
+        try: r = S.search_ddg("q")
+        finally: S._getj = orig
+        self.assertEqual(r[0]["url"], "https://x.com/g/status/5"); self.assertIn("snip", r[0]["text"])
 @unittest.skipUnless(LIVE, "set SEED_LIVE=1 for network tests")
 class Live(unittest.TestCase):
     def test_fxtwitter(self):
         r = call("seed_expand", {"post_url": "https://x.com/alucardiox/status/2110387861161656556", "topic": "live", "depth": 1, "max_items": 5})["structuredContent"]
         self.assertGreaterEqual(r["fetched"], 2, r)
+    def test_hunt_live(self):
+        r = call("seed_hunt", {"seed": "https://x.com/A_Pirate_I/status/2110761136706527452", "topic": "livehunt", "budget": 20})["structuredContent"]
+        self.assertTrue({"bing", "duckduckgo"} & set(r["sources_ok"]), r); self.assertTrue(r["added"], r)
 if __name__ == "__main__": unittest.main()
