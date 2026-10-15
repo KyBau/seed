@@ -1,4 +1,8 @@
 # Changelog
+## 0.3.0 (2026-10-15)
+- Free-text seeds: entity and phrase extraction, query variants, anchor-based relevance filter, per-domain cap, low-confidence fallback.
+- Skills use seed_hunt for one-call hunting. Tagline "Seed it." Homepage is seedlabs.onrender.com.
+
 ## 0.2.0 (2026-10-15)
 - New seed_hunt: one-call autonomous research from a post URL or idea (Bing RSS, DuckDuckGo, Hacker News, Reddit, optional X API), with request budget and per-host rate limit.
 

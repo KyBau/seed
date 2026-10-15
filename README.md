@@ -1,6 +1,17 @@
 # Seed
 
+**Seed it.**
+
 Plant one X post. Seed grows it into a cited knowledge base, flags hype, and sprouts a ready-to-build agent blueprint with informed pre-build questions.
+
+## Quick start: one call
+Ask your agent to "seed it" with a post URL or a plain-English idea. It calls `seed_hunt`, which:
+1. expands the post (quotes, reply parents, linked articles) or plans the idea: it pulls out entities (@handles, $tickers, brand names), key phrases and query variants (quoted phrase, anchor pairs, `site:x.com`, `from:`)
+2. searches free sources within a request `budget`
+3. keeps only relevant finds: results must contain anchor terms (2 for free-text ideas, 1 for post seeds; Hacker News is judged on its title). It allows at most 2 results per domain and drops generic junk. If nothing passes, it returns up to 5 `low_confidence` finds with `relaxed_filter: true`
+4. distills and returns a cited summary with hype flags
+
+Use the stage tools below for manual control.
 
 ## Workflow
 | Stage | Skill | MCP tools |

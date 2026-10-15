@@ -1,13 +1,13 @@
 {
   "name": "seed",
   "displayName": "Seed",
-  "version": "0.2.0",
-  "description": "Plant one X post. Seed grows it into a cited knowledge base, flags hype, and sprouts a ready-to-build agent blueprint with informed pre-build questions.",
+  "version": "0.3.0",
+  "description": "Seed it. Plant one X post or idea: Seed hunts related posts and articles in one call, builds a cited knowledge base, flags hype, and sprouts a ready-to-build agent blueprint.",
   "author": {
     "name": "Seed Labs (Kyle Bauer)",
     "email": "kylebauer@mail.grokbot.com"
   },
-  "homepage": "https://github.com/KyBau/seed",
+  "homepage": "https://seedlabs.onrender.com",
   "repository": "https://github.com/KyBau/seed",
   "license": "MIT",
   "logo": "assets/logo.svg",
