@@ -7,7 +7,7 @@ Zero dependencies, Python 3.10+."""
 import json, os, re, sys, time, html, math, urllib.request, urllib.error
 from collections import Counter
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-VERSION = "0.3.0"
+VERSION = "0.3.1"
 SUPPORTED = ["2026-07-28", "2025-11-25", "2025-06-18", "2025-03-26"]
 UA = "Seed/0.1 (+research connector; read-only)"
 FX = os.environ.get("SEED_FX_BASE", "https://api.fxtwitter.com")
