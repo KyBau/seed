@@ -1,0 +1,33 @@
+{
+  "name": "seed",
+  "displayName": "Seed",
+  "version": "0.1.0",
+  "description": "Plant one X post. Seed grows it into a cited knowledge base, flags hype, and sprouts a ready-to-build agent blueprint with informed pre-build questions.",
+  "author": {
+    "name": "Seed Labs (Kyle Bauer)",
+    "email": "kylebauer@mail.grokbot.com"
+  },
+  "homepage": "https://github.com/KyBau/seed",
+  "repository": "https://github.com/KyBau/seed",
+  "license": "MIT",
+  "logo": "assets/logo.svg",
+  "keywords": [
+    "research",
+    "x",
+    "twitter",
+    "knowledge-base",
+    "agents",
+    "blueprint",
+    "digest",
+    "mcp"
+  ],
+  "category": "productivity",
+  "tags": [
+    "research",
+    "x",
+    "agents",
+    "mcp"
+  ],
+  "mcpServers": "./mcp.json",
+  "skills": "./skills/"
+}
