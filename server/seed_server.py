@@ -7,7 +7,7 @@ Zero dependencies, Python 3.10+."""
 import json, os, re, sys, time, html, math, urllib.request, urllib.error
 from collections import Counter
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-VERSION = "0.1.0"
+VERSION = "0.1.1"
 SUPPORTED = ["2026-07-28", "2025-11-25", "2025-06-18", "2025-03-26"]
 UA = "Seed/0.1 (+research connector; read-only)"
 FX = os.environ.get("SEED_FX_BASE", "https://api.fxtwitter.com")
@@ -16,7 +16,14 @@ RO = {"readOnlyHint": True, "destructiveHint": False, "idempotentHint": True, "o
 LOCAL = {"readOnlyHint": False, "destructiveHint": False, "idempotentHint": True, "openWorldHint": False}
 STATUS = re.compile(r"(?:x|twitter|fxtwitter|vxtwitter)\.com/([A-Za-z0-9_]{1,15})/status/(\d+)")
 URL = re.compile(r"https?://[^\s<>\"')\]]+")
-STOP = set("the a an and or of to in on for with is are was be it this that i you we they my your our at by from as but not so if just can will have has how what when your more than all out up about into get got do does it's i'm im via one new like".split())
+STOP = set("""the a an and or of to in on for with is are was were be been being it its it's this that these those there then than
+i me my mine you your yours we us our they them their he him his she her who whom what which when where why how
+at by from as but not no nor so if just can could will would shall should may might must have has had do does did done
+get got gets getting go goes going went make made makes take took one two new like more most less much many some any
+all every each other into out up down over under about after before again once very also only even still too here
+im i'm i'd i've don't didn't doesn't isn't wasn't won't can't it's that's you'll you're we're they're
+full free setup thing things people way time times day days night today really actually turned turns because while
+below above post thread read via said says just now first last next same own bit lot part""".split())
 _T = lambda d, req=(), props=None: {"type": "object", "properties": props or {}, "required": list(req), "additionalProperties": False}
 TOPIC = {"type": "string", "description": "Topic slug, e.g. 'bot-trading-setups'."}
 TOOLS = [
@@ -127,26 +134,43 @@ def expand(post_url, topic=None, depth=2, max_items=40, fetch=fetch_post, art=ar
 def tokens(s):
     s = URL.sub(" ", (s or "").lower()); return [w for w in re.findall(r"[a-z][a-z0-9$%'.-]{2,}", s) if w.strip(".-'") not in STOP]
 def keywords(texts, n=8):
-    c = Counter(w.strip(".-'") for t in texts for w in set(tokens(t)) if len(w) > 3 and not w.startswith("$")); return [w for w, _ in c.most_common(n)]
+    """Distinctive terms: rank by how many items mention them, then by rarity-ish length; drop stopwords and numbers."""
+    df = Counter(w for t in texts for w in {x.strip(".-'") for x in tokens(t)} if len(w) > 3 and w not in STOP and not re.match(r"^[$\d]", w))
+    return [w for w, _ in sorted(df.items(), key=lambda kv: (-kv[1], -len(kv[0]), kv[0]))[:n]]
 def search_queries(items):
+    """X search queries (only real X operators: from:, quoted phrases). No min_faves (unsupported)."""
     texts = [i.get("text", "") for i in items if i.get("text")]
     if not texts: return []
     kw = keywords(texts, 6); qs = []
-    if len(kw) >= 2: qs.append(" ".join(kw[:3])); qs.append(f"{kw[0]} {kw[1]} min_faves:50")
-    for a in {i.get("author") for i in items if (i.get("author") or "").startswith("@")}: qs.append(f"from:{a[1:]} {kw[0] if kw else ''}".strip())
-    return qs[:6]
+    if len(kw) >= 2: qs.append(f"{kw[0]} {kw[1]}")
+    if len(kw) >= 3: qs.append(f"{kw[0]} {kw[2]}")
+    for a in sorted({i.get("author") for i in items if (i.get("author") or "").startswith("@")}):
+        mine = " ".join(i.get("text", "") for i in items if i.get("author") == a).lower(); own = keywords([mine], 1)
+        term = next((k for k in kw if k in mine), own[0] if own else "")
+        qs.append(f"from:{a[1:]} {term}".strip())
+    return list(dict.fromkeys(qs))[:6]
 def jacc(a, b): return len(a & b) / max(1, len(a | b))
+_NUM = r"([\d][\d,]*(?:\.\d+)?)\s*([kKmM])?"
+def _n(v, suf):
+    x = float(v.replace(",", "")); return x * {"k": 1e3, "m": 1e6}.get((suf or "").lower(), 1)
 def flags_for(it):
     t, f = it.get("text") or "", []
-    for m in re.finditer(r"\$\s?([\d,.]+)\s*(k|K)?\s*(?:to|->|→|into)\s*\$\s?([\d,.]+)\s*(k|K)?", t):
+    for m in re.finditer(r"\$\s?" + _NUM + r"\s*(?:to|into|->|→|=>|turned into|became)\s*\$\s?" + _NUM, t, re.I):
         try:
-            a = float(m.group(1).replace(",", "")) * (1000 if m.group(2) else 1); b = float(m.group(3).replace(",", "")) * (1000 if m.group(4) else 1)
-            if a > 0 and b / a >= 5: f.append(f"BIG RETURN CLAIM: {m.group(0)} ({b/a:.0f}x), unverified")
+            a, b = _n(m.group(1), m.group(2)), _n(m.group(3), m.group(4))
+            if a > 0 and b / a >= 3: f.append(f"BIG RETURN CLAIM: {m.group(0).strip()} ({b/a:.1f}x), unverified")
         except ValueError: pass
-    n = {k: int(v) for v, k in re.findall(r"(\d+)\s*(trades|wins|losses)\b", t, re.I) for k in [k.lower()]}
-    if {"trades", "wins", "losses"} <= n.keys() and n["wins"] + n["losses"] != n["trades"]:
-        f.append(f"MATH DOESN'T ADD UP: {n['wins']} wins + {n['losses']} losses != {n['trades']} trades")
-    if re.search(r"\b(\d{3,})\s?%", t): f.append("LARGE % CLAIM, unverified")
+    for m in re.finditer(r"(?<![\w.])(\d+(?:\.\d+)?)\s?[xX]\b", t):
+        if float(m.group(1)) >= 3: f.append(f"MULTIPLIER CLAIM: {m.group(0)}, unverified")
+    cnt = {}
+    for v, k in re.findall(r"\b(\d[\d,]*)\s+(?:[a-z-]+\s+){0,2}?(trades|wins|losses|winners|losers|win|loss)\b", t, re.I):
+        k = {"winners": "wins", "win": "wins", "losers": "losses", "loss": "losses"}.get(k.lower(), k.lower()); cnt.setdefault(k, int(v.replace(",", "")))
+    if {"trades", "wins", "losses"} <= cnt.keys() and cnt["wins"] + cnt["losses"] != cnt["trades"]:
+        f.append(f"MATH DOESN'T ADD UP: {cnt['wins']} wins + {cnt['losses']} losses = {cnt['wins'] + cnt['losses']}, not {cnt['trades']} trades")
+    hr = re.search(r"(\d+(?:\.\d+)?)\s?%\s*(?:hit|win)\s*rate", t, re.I)
+    if hr and {"trades", "wins"} <= cnt.keys() and cnt["trades"] and abs(100 * cnt["wins"] / cnt["trades"] - float(hr.group(1))) > 5:
+        f.append(f"MATH DOESN'T ADD UP: {hr.group(0)} vs {cnt['wins']}/{cnt['trades']} = {100*cnt['wins']/cnt['trades']:.0f}%")
+    if re.search(r"\b(\d{3,}(?:,\d{3})*)\s?%", t): f.append("LARGE % CLAIM, unverified")
     if re.search(r"(/mo\b|per month|/month|subscribe|use code|link in bio|affiliate|sign up)", t, re.I): f.append("PROMOTIONAL / PAID PRODUCT")
     if re.search(r"(not financial advice|results (are )?not typical|not a strategy to copy)", t, re.I): f.append("DISCLAIMER IN FINE PRINT")
     return f

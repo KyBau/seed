@@ -1,0 +1,19 @@
+I’M GENUINELY SHOOK, 9 HOURS OF SLEEP, 97 COPIED TRADES, 37 LOSSES, AND GROK STILL TURNED MY $170 INTO $2,154 BEFORE MY F*CKING ALARM WENT OFF
+
+Put it on at 11pm. One target for the night: $2,000 by 8am.
+
+Grok didn’t pick one trader. It picked eight, all from the top of the 30-day board, and copied them at the same time through CopyFomo. If one of them has a bad night, the other seven carry it.
+
+Every buy and every exit gets mirrored with about a third of a second of lag. When a trader sizes in too big for my account, the bot just skips it.
+
+The losses are real. 37 of them. At one point the account was down 11.8% from the peak, and I’m glad I was asleep for that part.
+
+But the green ones ran further than the red ones bled. 88 wins, 70% hit rate.
+
+What I like most is how it split. The top trader made me $436, the eighth made $99. Nobody carried the whole night, and nobody sank it either.
+
+3am the balance was $586. By the time I made coffee it was $2,154. Target hit, plus a bit. That’s 12x on one night’s sleep.
+
+I’ve traded crypto for over five years and the worst decisions I ever made were at 2am. Turns out that’s the shift a bot should be working.
+
+The full overnight setup is below, free. Most people won’t bother saving it, so you’ll be ahead if you do.

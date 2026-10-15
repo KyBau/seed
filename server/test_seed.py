@@ -39,6 +39,23 @@ class Pipeline(unittest.TestCase):
         r = S.expand("https://x.com/a/status/1", "d0", 0, 40, fetch=lambda i: dict(FAKE[i]), art=lambda u: (u, "", ""))
         self.assertEqual(r["fetched"], 1)
     def test_empty_distill(self): self.assertTrue(call("seed_distill", {"topic": "nothing"})["isError"])
+PIRATE = open(os.path.join(os.path.dirname(__file__), "fixtures", "a_pirate_i.txt")).read()
+NEVSKY = "i don't pick traders anymore. i don't pick coins.\n\ngrok ranks the traders worth copying\nrugcheck kills the rugs before grok is even asked\ngrok calls COPY or SKIP on every buy\ncopyfomo fills it in ~1 sec, sells included\n\nfull setup, every file paste below"
+class Regression(unittest.TestCase):
+    def test_pirate_flags(self):
+        f = " | ".join(S.flags_for({"text": PIRATE}))
+        self.assertIn("BIG RETURN", f); self.assertIn("12.7x", f); self.assertIn("MULTIPLIER CLAIM: 12x", f)
+        self.assertIn("88 wins + 37 losses = 125, not 97 trades", f); self.assertIn("70% hit rate vs 88/97", f)
+    def test_variants(self):
+        for txt in ["$1k -> $9,500", "$50 to $400 overnight", "TURNED $200 INTO $5K"]: self.assertTrue(any("BIG RETURN" in x for x in S.flags_for({"text": txt})), txt)
+        self.assertEqual(S.flags_for({"text": "Bought 2 coins at $10 to $12 range"}), [])
+        self.assertEqual(S.flags_for({"text": "10 trades, 6 wins, 4 losses"}), [])
+    def test_queries(self):
+        items = [{"text": PIRATE, "author": "@A_Pirate_I"}, {"text": NEVSKY, "author": "@0xNevsky"}]
+        q = S.search_queries(items); j = " ".join(q)
+        self.assertNotIn("min_faves", j); self.assertNotIn("them", j.split())
+        self.assertTrue(any("copyfomo" in x and "grok" in x for x in q), q); self.assertIn("from:0xNevsky copyfomo", q); self.assertIn("from:A_Pirate_I copyfomo", q)
+        for w in S.keywords([PIRATE, NEVSKY], 8): self.assertNotIn(w, S.STOP)
 @unittest.skipUnless(LIVE, "set SEED_LIVE=1 for network tests")
 class Live(unittest.TestCase):
     def test_fxtwitter(self):
