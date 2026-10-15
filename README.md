@@ -65,9 +65,6 @@ cd server && python3 test_seed.py            # offline
 SEED_LIVE=1 python3 test_seed.py             # also hits fxtwitter
 ```
 
-## Roadmap
-**v0.4 — setup mode (design sketch):** `seed connecting brokerage accounts to tradingview`. Seed hunts the how-to, builds a step plan, and runs the setup itself. It pauses **only** at login/auth prompts, which go through the host app's own sign-in flow. Seed never stores secrets, the spend cap stays, every action is logged, and reversible steps can be rolled back. New tools would be `seed_plan`, `seed_setup`, `seed_resume`, `seed_status` and `seed_rollback`. See [docs/ROADMAP-v0.4.md](docs/ROADMAP-v0.4.md).
-
 ## Safety
 Read-only on the web. It never posts, likes, follows, DMs, buys or signs up. Fetched text is treated as data, never as instructions.
 
