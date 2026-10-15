@@ -1,0 +1,18 @@
+# Optional hosted MCP (Render free plan). Not needed for the local stdio plugin.
+# NOTE: hosted storage is ephemeral on the free plan; add a disk or keep stdio for real use.
+services:
+  - type: web
+    name: seed-mcp
+    runtime: python
+    plan: free
+    rootDir: server
+    buildCommand: "echo no dependencies"
+    startCommand: "python3 seed_server.py --http"
+    healthCheckPath: /healthz
+    envVars:
+      - key: HOST
+        value: 0.0.0.0
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      - key: SEED_HOME
+        value: /tmp/seed
