@@ -1,14 +1,15 @@
 ---
 name: Seed: grow
 description: >-
-  Use when the user shares an X post URL or an idea and says "seed it", "seed this", "grow this",
+  Use when the user types "seed <X post URL or idea>" (e.g. "seed https://x.com/...", "seed bot trading ideas"),
+  or says "seed this", "grow this",
   "find more like this", or wants related posts, strategies or articles gathered. Default is
   ONE call to seed_hunt. Read-only; never posts, likes, follows or DMs.
 ---
-# Grow (Seed it.)
+# Grow (`seed <post or idea>`)
 
 ## Default: one call
-Call `seed_hunt` with `seed` set to the post URL or the user's plain-English idea. Add `topic` (a stable slug like `bot-trading-setups`) if the user has one. Defaults: `budget` 30 requests, `depth` 1, `max_add` 15. Raise the budget only if the user asks for a deep dive.
+The text after "seed" is the seed. Call `seed_hunt` with `seed` set to that post URL or plain-English idea. Add `topic` (a stable slug like `bot-trading-setups`) if the user has one. Defaults: `budget` 30 requests, `depth` 1, `max_add` 15. Raise the budget only if the user asks for a deep dive.
 
 It expands the post, plans queries (entities, phrases, variants), searches free sources (Bing RSS, Hacker News, DuckDuckGo when it isn't challenged, Reddit when reachable, X search only if `SEED_X_BEARER` is set), filters junk, saves the finds and distills them.
 

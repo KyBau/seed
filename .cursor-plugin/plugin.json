@@ -1,8 +1,8 @@
 {
   "name": "seed",
   "displayName": "Seed",
-  "version": "0.3.0",
-  "description": "Seed it. Plant one X post or idea: Seed hunts related posts and articles in one call, builds a cited knowledge base, flags hype, and sprouts a ready-to-build agent blueprint.",
+  "version": "0.3.1",
+  "description": "Type `seed <post or idea>`: Seed hunts related posts and articles in one call, builds a cited knowledge base, flags hype, and sprouts a ready-to-build agent blueprint.",
   "author": {
     "name": "Seed Labs (Kyle Bauer)",
     "email": "kylebauer@mail.grokbot.com"

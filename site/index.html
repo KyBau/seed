@@ -1,35 +1,214 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Seed it. Seed: grow one post into a knowledge base and a bot</title>
-<meta name="description" content="Plant one X post. Seed finds the related posts and articles, merges them into a cited knowledge base, flags hype, and drafts a ready-to-build agent.">
-<meta property="og:title" content="Seed"><meta property="og:image" content="logo.png"><link rel="icon" href="logo.svg">
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Seed: one command turns a post into a knowledge base and a bot</title>
+<meta name="description" content="Type seed followed by an X post or an idea. Seed hunts the related posts and articles, builds a cited knowledge base, flags hype, and sprouts a ready-to-build agent.">
+<meta property="og:title" content="seed <post or idea>">
+<meta property="og:description" content="One command. A cited knowledge base. A bot blueprint.">
+<meta property="og:image" content="https://seedlabs.onrender.com/logo.png">
+<meta name="theme-color" content="#07130d">
+<link rel="icon" href="logo.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#0F2A1D;--fg:#EAF5EC;--leaf:#B9F27C;--muted:#9CC2A8}
-*{box-sizing:border-box}body{margin:0;font:17px/1.6 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--fg)}
-main{max-width:860px;margin:0 auto;padding:56px 24px}
-header{display:flex;gap:18px;align-items:center}header img{width:72px;height:72px}
-h1{font-size:44px;margin:0}h2{margin-top:48px;color:var(--leaf)}.tag{color:var(--muted);font-size:20px;margin-top:8px}
-.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-top:24px}
-.step{background:#163A28;border-radius:14px;padding:16px}.step b{color:var(--leaf);display:block;letter-spacing:.08em}
-code{background:#163A28;padding:2px 6px;border-radius:6px}a{color:var(--leaf)}footer{margin-top:64px;color:var(--muted);font-size:14px}
-ul li{margin:6px 0}
-</style></head><body><main>
-<header><img src="logo.svg" alt="Seed logo"><div><h1>Seed</h1><div class="tag"><b style="color:var(--leaf)">Seed it.</b> Plant one post. Grow a knowledge base. Sprout a bot.</div></div></header>
-<p>You find a great post about a strategy, and five minutes later you find another one with a different take. Seed starts from a single X post, finds the related posts, replies, and articles on its own, and merges them into one cited playbook. When a topic is ready, it drafts an agent for you and asks the build questions up front.</p>
-<div class="steps">
-<div class="step"><b>HUNT</b>One call does it all. Give it a post or a plain-English idea and it searches, filters out junk, and returns a cited summary.</div>
-<div class="step"><b>GROW</b>Follows quotes, replies, and linked articles two levels deep, then searches X and the web for more.</div>
-<div class="step"><b>DISTILL</b>Groups duplicate ideas, cites every source, and flags hype like 88 wins in 97 trades with 37 losses.</div>
-<div class="step"><b>SPROUT</b>Drafts a bot blueprint with multiple-choice questions drawn from what it learned.</div>
-<div class="step"><b>FEED</b>Sends new ideas to the agents you already run instead of starting duplicates.</div>
-<div class="step"><b>WATCH</b>Sends a daily digest of what's new on each topic. If nothing changed, it says so.</div>
+:root{
+  --bg:#07130d; --bg2:#0b1d14; --fg:#e9f3ec; --muted:#8fa89a; --dim:#5d7568;
+  --leaf:#b9f27c; --leaf2:#7bd88f; --gold:#e8c66a; --warn:#ffb86b;
+  --glass:rgba(255,255,255,.035); --line:rgba(185,242,124,.12);
+  --sans:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: light){
+  :root{--bg:#f6faf5;--bg2:#ecf4ec;--fg:#0f2a1d;--muted:#4b6656;--dim:#7d9486;--leaf:#3f8f2f;--leaf2:#2f7d4a;--glass:rgba(15,42,29,.04);--line:rgba(15,42,29,.1);--warn:#b35c00}
+}
+*{box-sizing:border-box;margin:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--bg);color:var(--fg);line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:-20% -10% auto;height:90vh;z-index:-1;pointer-events:none;
+  background:radial-gradient(600px 380px at 20% 20%,rgba(123,216,143,.16),transparent 70%),radial-gradient(520px 360px at 85% 10%,rgba(185,242,124,.10),transparent 70%)}
+a{color:inherit}
+.wrap{max-width:1120px;margin:0 auto;padding:0 28px}
+nav{display:flex;align-items:center;justify-content:space-between;padding:26px 0}
+.brand{display:flex;align-items:center;gap:12px;font-weight:700;font-size:18px;letter-spacing:-.01em;text-decoration:none}
+.brand img{width:34px;height:34px;border-radius:9px}
+.navlinks{display:flex;gap:28px;font-size:15px;color:var(--muted)}
+.navlinks a{text-decoration:none}.navlinks a:hover{color:var(--fg)}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 20px;border-radius:999px;font-weight:600;font-size:15px;text-decoration:none;transition:transform .15s,background .15s}
+.btn.primary{background:var(--leaf);color:#07130d}.btn.primary:hover{transform:translateY(-1px)}
+.btn.ghost{color:var(--fg);background:var(--glass)}.btn.ghost:hover{background:rgba(185,242,124,.08)}
+/* hero */
+.hero{display:grid;grid-template-columns:1.05fr 1fr;gap:56px;align-items:center;padding:64px 0 96px}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--leaf)}
+.eyebrow i{width:6px;height:6px;border-radius:50%;background:var(--leaf);box-shadow:0 0 12px var(--leaf)}
+h1{font-size:clamp(40px,5.6vw,68px);line-height:1.04;letter-spacing:-.035em;font-weight:800;margin:18px 0 22px}
+h1 code{font-family:var(--mono);font-weight:500;letter-spacing:-.04em;color:var(--leaf);background:linear-gradient(90deg,var(--leaf),var(--leaf2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.lede{font-size:19px;color:var(--muted);max-width:520px}
+.ctas{display:flex;gap:12px;margin-top:34px;flex-wrap:wrap}
+.term{background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.02));border-radius:18px;box-shadow:0 30px 80px -30px rgba(0,0,0,.6),inset 0 0 0 1px var(--line);overflow:hidden;font-family:var(--mono);font-size:14.5px}
+@media (prefers-color-scheme: light){.term{background:#0d1f16;color:#e9f3ec;box-shadow:0 30px 70px -30px rgba(15,42,29,.45)}}
+.term-bar{display:flex;gap:7px;padding:14px 16px}
+.term-bar span{width:11px;height:11px;border-radius:50%;background:rgba(255,255,255,.14)}
+.term-body{padding:6px 22px 24px;min-height:300px}
+.prompt{color:#b9f27c}.cmd{color:#e9f3ec}
+.caret{display:inline-block;width:8px;height:18px;background:#b9f27c;vertical-align:-3px;margin-left:2px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+.out{margin-top:14px;color:#8fa89a;line-height:1.75;min-height:200px}
+.out div{opacity:0;transform:translateY(4px);transition:opacity .35s,transform .35s}
+.out div.on{opacity:1;transform:none}
+.ok{color:#7bd88f}.flag{color:#ffb86b}.url{color:#c9d8cf;text-decoration:underline;text-decoration-color:rgba(255,255,255,.2)}
+/* section */
+section{padding:96px 0}
+.kicker{font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--leaf)}
+h2{font-size:clamp(30px,3.6vw,44px);letter-spacing:-.025em;line-height:1.12;margin:12px 0 16px;font-weight:750}
+.sub{color:var(--muted);font-size:18px;max-width:620px}
+/* timeline */
+.flow{position:relative;margin-top:64px;display:grid;grid-template-columns:repeat(4,1fr);gap:28px}
+.flow::before{content:"";position:absolute;left:24px;right:24px;top:23px;height:2px;background:linear-gradient(90deg,var(--leaf),var(--leaf2) 60%,rgba(123,216,143,.15))}
+.node{position:relative}
+.dot{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:var(--bg);box-shadow:0 0 0 2px var(--leaf),0 0 30px rgba(185,242,124,.25);font-family:var(--mono);font-size:14px;color:var(--leaf);position:relative}
+.node h3{font-size:20px;margin:22px 0 8px;letter-spacing:-.01em}
+.node h3 code{font-family:var(--mono);font-weight:500;font-size:15px;color:var(--leaf);margin-left:6px}
+.node p{color:var(--muted);font-size:15.5px}
+/* preview */
+.preview{display:grid;grid-template-columns:.9fr 1.1fr;gap:56px;align-items:start}
+.kb{border-radius:20px;background:var(--glass);padding:30px 32px;box-shadow:inset 0 0 0 1px var(--line)}
+.kb-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;margin-bottom:22px}
+.kb-head b{font-size:18px;letter-spacing:-.01em}
+.kb-head span{font-family:var(--mono);font-size:12.5px;color:var(--dim)}
+.idea{padding:18px 0;border-top:1px solid var(--line)}
+.idea:first-of-type{border-top:0;padding-top:0}
+.idea h4{font-size:16px;margin-bottom:6px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.label{font-family:var(--mono);font-size:11px;font-weight:500;padding:3px 8px;border-radius:999px;letter-spacing:.04em}
+.l-rep{background:rgba(123,216,143,.14);color:var(--leaf2)}.l-claim{background:rgba(255,184,107,.14);color:var(--warn)}
+.idea p{color:var(--muted);font-size:15px}
+.cites{margin-top:8px;display:flex;gap:8px;flex-wrap:wrap}
+.cites a{font-family:var(--mono);font-size:12px;color:var(--dim);text-decoration:none;background:var(--glass);padding:3px 9px;border-radius:7px}
+.cites a:hover{color:var(--leaf)}
+.hype{margin-top:12px;padding:12px 14px;border-radius:12px;background:rgba(255,184,107,.08);color:var(--warn);font-size:14px;display:flex;gap:10px}
+.points{list-style:none;padding:0;margin-top:30px;display:grid;gap:18px}
+.points li{display:flex;gap:14px;color:var(--muted);font-size:16px}
+.points li b{color:var(--fg);font-weight:600}
+.points svg{flex:none;margin-top:3px}
+/* install */
+.install{border-radius:28px;padding:64px 56px;background:radial-gradient(500px 260px at 90% 0%,rgba(185,242,124,.14),transparent 70%),var(--bg2);display:grid;grid-template-columns:1fr auto;gap:40px;align-items:center}
+.code{font-family:var(--mono);font-size:15px;background:rgba(0,0,0,.25);color:#e9f3ec;padding:16px 20px;border-radius:12px;margin-top:22px;display:inline-block}
+@media (prefers-color-scheme: light){.code{background:#0d1f16}.btn.primary{color:#fff}}
+.code .prompt{margin-right:8px}
+footer{padding:56px 0 64px;color:var(--dim);font-size:14px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
+footer a{text-decoration:none}footer a:hover{color:var(--fg)}
+@media (max-width:900px){
+  .hero,.preview,.install{grid-template-columns:1fr}
+  .hero{padding:28px 0 64px;gap:40px}
+  .navlinks a:not(.keep){display:none}
+  .flow{grid-template-columns:1fr;gap:0;margin-top:44px}
+  .flow::before{left:23px;right:auto;top:24px;bottom:24px;width:2px;height:auto;background:linear-gradient(180deg,var(--leaf),rgba(123,216,143,.15))}
+  .node{display:grid;grid-template-columns:48px 1fr;column-gap:20px;padding-bottom:34px}
+  .node h3{margin:10px 0 6px}.node p{grid-column:2}
+  section{padding:64px 0}.install{padding:40px 28px}.kb{padding:24px 22px}
+  .term-body{min-height:280px}
+}
+@media (max-width:520px){.wrap{padding:0 20px}.term{font-size:12px}.term-body{padding:4px 16px 20px;min-height:250px}.term-body>div:first-child,.out div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.lede{font-size:17px}.code{font-size:13px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}h1{font-size:42px}.install img{width:96px;height:96px;border-radius:24px}}
+@media (prefers-reduced-motion:reduce){.caret{animation:none}.out div{transition:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<nav>
+  <a class="brand" href="#"><img src="logo.svg" alt="">Seed</a>
+  <div class="navlinks"><a href="#how">How it works</a><a href="#output">Output</a><a class="keep" href="https://github.com/KyBau/seed">GitHub</a></div>
+</nav>
+
+<header class="hero">
+  <div>
+    <span class="eyebrow"><i></i>Plugin for Grok Bot &amp; Cursor</span>
+    <h1>One command.<br><code>seed</code> a whole field.</h1>
+    <p class="lede">Type <b>seed</b> followed by an X post or a rough idea. Seed hunts the related posts and articles, merges them into a cited knowledge base, flags the hype, and sketches the bot you should build next.</p>
+    <div class="ctas"><a class="btn primary" href="#install">Get the plugin</a><a class="btn ghost" href="https://github.com/KyBau/seed">View source →</a></div>
+  </div>
+  <div class="term" aria-label="Seed command demo">
+    <div class="term-bar"><span></span><span></span><span></span></div>
+    <div class="term-body">
+      <div><span class="prompt">❯ </span><span class="cmd" id="typed"></span><span class="caret"></span></div>
+      <div class="out" id="out"></div>
+    </div>
+  </div>
+</header>
 </div>
-<h2>Safe by default</h2>
-<ul><li>Read-only. It never posts, likes, follows, DMs, buys, or signs up for anything.</li>
-<li>No API key needed to read posts. Broad search uses your host's X access.</li>
-<li>Every claim gets a source and a label: CONFIRMED, REPORTED, or CLAIM.</li>
-<li>Your knowledge base stays on your machine as plain JSON.</li></ul>
-<h2>Install</h2>
-<p>In Grok, Grok Bot, or Cursor, open the plugin marketplace and add <b>Seed</b>. Then tell your agent: <code>seed it: https://x.com/…/status/…</code> or <code>seed it: how do Polymarket traders size bets?</code></p>
-<footer>Seed · MIT licensed · by Seed Labs (Kyle Bauer) · <a href="https://github.com/KyBau/seed">GitHub</a></footer>
-</main></body></html>
+
+<section id="how"><div class="wrap">
+  <div class="kicker">How it works</div>
+  <h2>From one seed to a full field of knowledge.</h2>
+  <p class="sub">You plant it once. Seed follows the leads, keeps only the relevant finds, and checks what doesn't add up.</p>
+  <div class="flow">
+    <div class="node"><div class="dot">01</div><h3>Seed<code>seed …</code></h3><p>Start from an X post or a plain-English idea. It pulls out the names, @handles, $tickers and key phrases that matter.</p></div>
+    <div class="node"><div class="dot">02</div><h3>Hunt</h3><p>It follows quotes, replies and linked articles, then searches the web for more. Keyless sources come first, every call fits a request budget, and junk gets filtered out.</p></div>
+    <div class="node"><div class="dot">03</div><h3>Distill</h3><p>It groups duplicate ideas, keeps a source link on every claim, and flags the hype: impossible returns, math that doesn't add up, paid pitches.</p></div>
+    <div class="node"><div class="dot">04</div><h3>Sprout</h3><p>It drafts a bot blueprint with multiple-choice build questions based on what it found. Then it keeps watching and sends a daily digest.</p></div>
+  </div>
+</div></section>
+
+<section id="output"><div class="wrap preview">
+  <div>
+    <div class="kicker">Sample output</div>
+    <h2>Every claim has a source. Every hype number gets flagged.</h2>
+    <p class="sub">This is real output from <code style="font-family:var(--mono);color:var(--leaf)">seed</code> run on a viral copy-trading post.</p>
+    <ul class="points">
+      <li><svg width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9" fill="none" stroke="currentColor" opacity=".3"/><path d="M6 10.5l2.5 2.5L14 7.5" stroke="#7bd88f" stroke-width="2" fill="none" stroke-linecap="round"/></svg><span><b>Read-only.</b> It never posts, buys, follows or signs up for anything.</span></li>
+      <li><svg width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9" fill="none" stroke="currentColor" opacity=".3"/><path d="M6 10.5l2.5 2.5L14 7.5" stroke="#7bd88f" stroke-width="2" fill="none" stroke-linecap="round"/></svg><span><b>No API keys.</b> It runs on free sources; X search is an optional add-on.</span></li>
+      <li><svg width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="9" fill="none" stroke="currentColor" opacity=".3"/><path d="M6 10.5l2.5 2.5L14 7.5" stroke="#7bd88f" stroke-width="2" fill="none" stroke-linecap="round"/></svg><span><b>Yours.</b> Each topic is saved as plain JSON on your own machine.</span></li>
+    </ul>
+  </div>
+  <div class="kb">
+    <div class="kb-head"><b>copy-trading · knowledge base</b><span>9 sources · 7 flags</span></div>
+    <div class="idea">
+      <h4>Grok ranks traders, copyfomo mirrors them <span class="label l-rep">REPORTED</span></h4>
+      <p>Grok scores wallets from the 30-day board, a rug check screens each coin, and copyfomo copies buys and sells in about one second.</p>
+      <div class="cites"><a href="https://x.com/0xNevsky/status/2109636877078904977">@0xNevsky</a><a href="https://www.copyfomo.com/">copyfomo.com</a><a href="https://x.com/grok/status/2109689335209509189">@grok</a></div>
+    </div>
+    <div class="idea">
+      <h4>Overnight multi-trader copying <span class="label l-claim">CLAIM</span></h4>
+      <p>Copy eight top traders at once so one bad night is offset by the other seven.</p>
+      <div class="cites"><a href="https://x.com/A_Pirate_I/status/2110761136706527452">@A_Pirate_I</a></div>
+      <div class="hype"><span>⚑</span><span>Math doesn't add up: 88 wins + 37 losses = 125, not 97 trades. "$170 into $2,154" (12.7x) is unverified.</span></div>
+    </div>
+    <div class="idea">
+      <h4>Safety check on the tool <span class="label l-rep">REPORTED</span></h4>
+      <p>It's a real non-custodial Telegram bot with no reported thefts, but the return claims rest on screenshots.</p>
+      <div class="cites"><a href="https://x.com/grok/status/2109810431661334863">@grok</a></div>
+    </div>
+  </div>
+</div></section>
+
+<section id="install"><div class="wrap">
+  <div class="install">
+    <div>
+      <div class="kicker">Get started</div>
+      <h2>Plant your first seed.</h2>
+      <p class="sub">Add <b>Seed</b> from the plugin marketplace in Grok Bot or Cursor, then type:</p>
+      <div class="code"><span class="prompt">❯</span>seed https://x.com/…/status/…</div><br>
+      <div class="code"><span class="prompt">❯</span>seed bot trading ideas</div>
+    </div>
+    <img src="logo.svg" alt="" width="160" height="160" style="border-radius:36px;box-shadow:0 30px 80px -20px rgba(123,216,143,.35)">
+  </div>
+</div></section>
+
+<div class="wrap"><footer><span>Seed by Seed Labs (Kyle Bauer) · MIT licensed</span><span><a href="https://github.com/KyBau/seed">GitHub</a></span></footer></div>
+
+<script>
+const demos=[
+ {c:"seed https://x.com/A_Pirate_I/status/2110…",o:[["ok","✓ expanded post, quote and article (3)"],["","→ hunting: copyfomo grok · copyfomo site:x.com"],["ok","✓ kept 7 relevant finds, dropped 34 off-topic"],["flag","⚑ 88 wins + 37 losses ≠ 97 trades"],["flag","⚑ $170 into $2,154 (12.7x), unverified"],["ok","✓ knowledge base: 6 ideas, every one cited"]]},
+ {c:"seed bot trading ideas",o:[["","→ anchors: bot trading · strategies · risk"],["ok","✓ 12 sources from the web, HN and X"],["flag","⚑ 3 promotional posts (paid signals)"],["ok","✓ sprout: “Trading Desk” blueprint + 6 build questions"]]},
+ {c:"seed how do polymarket traders size bets?",o:[["","→ phrases: polymarket traders · kelly sizing"],["ok","✓ 9 cited finds · 2 low-confidence"],["ok","✓ watching topic · daily digest at 7:00 AM"]]}
+];
+const t=document.getElementById("typed"),out=document.getElementById("out"),rm=matchMedia("(prefers-reduced-motion: reduce)").matches;
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+async function run(){for(let k=0;;k=(k+1)%demos.length){const d=demos[k];out.innerHTML="";t.textContent="";
+ if(rm){t.textContent=d.c}else for(const ch of d.c){t.textContent+=ch;await sleep(38+Math.random()*40)}
+ await sleep(350);for(const [cls,txt] of d.o){const e=document.createElement("div");e.className=cls;e.textContent=txt;out.appendChild(e);await sleep(30);e.classList.add("on");await sleep(rm?0:520)}
+ await sleep(3200)}}
+run();
+</script>
+</body>
+</html>
