@@ -1,7 +1,7 @@
 {
   "name": "seed",
   "displayName": "Seed",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Plant one X post. Seed grows it into a cited knowledge base, flags hype, and sprouts a ready-to-build agent blueprint with informed pre-build questions.",
   "author": {
     "name": "Seed Labs (Kyle Bauer)",
