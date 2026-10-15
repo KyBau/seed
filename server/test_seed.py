@@ -56,10 +56,29 @@ class Regression(unittest.TestCase):
         self.assertNotIn("min_faves", j); self.assertNotIn("them", j.split())
         self.assertTrue(any("copyfomo" in x and "grok" in x for x in q), q); self.assertIn("from:0xNevsky copyfomo", q); self.assertIn("from:A_Pirate_I copyfomo", q)
         for w in S.keywords([PIRATE, NEVSKY], 8): self.assertNotIn(w, S.STOP)
+class Plan(unittest.TestCase):
+    def test_freetext(self):
+        pl = S.plan("How do Polymarket traders use Kelly sizing with Grok bots?", [])
+        self.assertEqual(pl["anchors"][:2], ["polymarket", "kelly"]); self.assertIn("kelly sizing", pl["phrases"])
+        self.assertTrue(any(q.startswith('"') for q in pl["queries"])); self.assertTrue(any("site:x.com" in q for q in pl["queries"]))
+        self.assertNotIn("use", pl["terms"]); self.assertNotIn("min_faves", " ".join(pl["queries"]))
+    def test_handles_tickers(self):
+        pl = S.plan("@0xNevsky copy setup for $SOL memecoins", [])
+        self.assertIn("0xnevsky", pl["anchors"]); self.assertIn("sol", pl["anchors"]); self.assertTrue(any(q.startswith("from:0xNevsky") for q in pl["queries"]))
+    def test_post_seed_ignores_shouting(self):
+        pl = S.plan("https://x.com/a/status/1", [{"text": PIRATE}, {"text": NEVSKY}])
+        self.assertEqual(pl["anchors"][0], "copyfomo"); self.assertNotIn("shook", pl["anchors"]); self.assertNotIn("put", pl["anchors"])
+    def test_junk_filter(self):
+        pl = S.plan("https://x.com/a/status/1", [{"text": PIRATE}, {"text": NEVSKY}])
+        self.assertFalse(S.keep({"url": "https://www.mathway.com/Calculator/equation-solver", "text": "Mathway | Algebra Problem Solver - pick any equation", "source": "bing"}, pl)[0])
+        self.assertTrue(S.keep({"url": "https://www.copyfomo.com/", "text": "CopyFomo - copy top crypto traders", "source": "bing"}, pl)[0])
+        pl2 = S.plan("grok copy trading bot crypto wallets", [])
+        self.assertFalse(S.keep({"url": "https://en-tradingview.org/", "text": "TradingView - crypto trading charts", "source": "bing"}, pl2)[0])
+        self.assertFalse(S.keep({"url": "https://news.ycombinator.com/item?id=1", "text": "Goldman sets up crypto trading desk", "source": "hackernews"}, pl2)[0])
 class Hunt(unittest.TestCase):
     def fake(self, calls):
         def ddg(q): calls.append(q); return [{"url": "https://x.com/c/status/3", "text": "copy trading wallets result", "source": "duckduckgo"},
-                                            {"url": "https://blog.example/copytrade", "text": "Copy trading wallets guide: $100 into $5,000", "source": "duckduckgo"},
+                                            {"url": "https://blog.example/copytrade", "text": "Copy trading wallets guide: score markets, $100 into $5,000", "source": "duckduckgo"},
                                             {"url": "https://other.example/cats", "text": "cute cats", "source": "duckduckgo"}]
         def bad(q): raise PermissionError("SEED_X_BEARER not set")
         return {"x": bad, "duckduckgo": ddg}

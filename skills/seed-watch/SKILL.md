@@ -1,17 +1,13 @@
 ---
 name: Seed: watch
 description: >-
-  Use when the user wants Seed to keep following a topic, or asks for a daily/weekly
-  digest of what's new. Sets up a recurring check per topic and writes a short digest.
+  Use when the user wants Seed to keep following a topic, or asks for a daily or weekly digest of
+  what's new. Each run is one seed_hunt per topic plus seed_digest.
 ---
 # Watch
 
-1. Call `seed_topics` to see seeded topics and when each was last refreshed.
-2. For each watched topic, rerun the saved `search_queries` restricted to items newer
-   than the last run; add finds with `seed_add`.
-3. Call `seed_digest` with the topic and `since` timestamp. It returns only new items
-   and new flags.
-4. Write a digest of at most 5 bullets: what's new, why it matters, source, label.
-   Say "nothing new" when that's true; don't pad.
-5. Schedule with the host's scheduler if available (default daily, morning in the
-   user's time zone). Never message anyone but the user.
+1. Call `seed_topics` to list the seeded topics and their saved queries.
+2. For each watched topic, call `seed_hunt` with `seed` set to the topic's original post or idea (or its best saved query) and `topic` set to the slug. Use a small `budget` (10–20). Known URLs are skipped automatically, so only new finds get added.
+3. Call `seed_digest` with the topic and the time of the last run (`since`). It returns only new items and new flags.
+4. Write a digest of at most 5 bullets: what's new, why it matters, source, and label (CONFIRMED / REPORTED / CLAIM). If nothing changed, say "nothing new".
+5. Schedule it with the host's scheduler if available. Default is daily, in the morning in the user's time zone. Never message anyone but the user.
